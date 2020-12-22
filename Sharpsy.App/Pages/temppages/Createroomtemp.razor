@@ -1,0 +1,45 @@
+﻿@page "/create"
+@using Sharpsy.Library.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity;
+@using Sharpsy.DataAccess.Stores
+@using Sharpsy.App.Services 
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject IRoomStore RoomStore
+@inject UserManager<ApplicationUser> UserManager
+@inject State State 
+
+<EditForm Model="@room" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="title" @bind-Value="room.Title" />
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code {
+    private RoomModel room = new RoomModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitializedAsync();
+        var user = await State.GetAuthenticatedUser();
+
+        if (user == null)
+        {
+            NavigationManager.NavigateTo("/notauthorized");
+            return;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var user = await State.GetAuthenticatedUser();
+        room.CreatorId = user.Id;
+
+        await RoomStore.CreateRoom(room);
+    }
+
+}

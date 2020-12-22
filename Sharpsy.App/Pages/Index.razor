@@ -1,0 +1,50 @@
+﻿@page "/"
+@using System.Text
+@using Sharpsy.Library.Models
+@using System.Text.Json
+@using System.Security.Claims
+@using Sharpsy.DataAccess.Stores
+@using Sharpsy.App.Services 
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject IRoomStore RoomStore
+@inject UserManager<ApplicationUser> UserManager;
+@inject State State   
+
+<h3>Rooms</h3>
+
+@if (rooms != null)
+{
+    foreach (var room in rooms)
+    {
+        <div @onclick="@(() => NavigationManager.NavigateTo("room/" + room.RoomId))">
+            @room.Title
+        </div>
+        <hr />
+        
+    }
+}
+
+
+@code{
+
+    public IEnumerable<RoomModel> rooms { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        var user = await State.GetAuthenticatedUser();
+        if (user == null)
+        {
+            NavigationManager.NavigateTo("/notauthorized");
+            return;
+        }
+
+        rooms = await RoomStore.GetRoomsByUserId(user.Id);
+    }
+
+
+}

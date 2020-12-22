@@ -1,0 +1,16 @@
+﻿
+@page "/logout"
+@using Microsoft.AspNetCore.Identity
+@attribute [IgnoreAntiforgeryToken]
+@inject SignInManager<Sharpsy.Library.Models.ApplicationUser> SignInManager
+@functions {
+    public async Task<IActionResult> OnGet()
+    {
+        if (SignInManager.IsSignedIn(User))
+        {
+            await SignInManager.SignOutAsync();
+        }
+
+        return Redirect("~/");
+    }
+}

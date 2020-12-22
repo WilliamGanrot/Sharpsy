@@ -1,0 +1,23 @@
+﻿@using Sharpsy.Library.Models
+@using Sharpsy.DataAccess.Stores 
+@page "/room/{roomId:int}"
+@inject IRoomStore RoomStore
+
+@if(RoomModel != null)
+{
+    <h3>Room @RoomModel.Title</h3>
+}
+
+@code {     
+
+    [Parameter] 
+    public int roomId { get; set; }
+    public RoomModel RoomModel { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitializedAsync();
+        RoomModel = await RoomStore.FindRoomById(roomId);
+
+    }
+}
