@@ -45,7 +45,7 @@ namespace Sharpsy.DataAccess.Stores
 
                         transaction.Commit();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         transaction.Rollback();
                         throw;
@@ -53,46 +53,22 @@ namespace Sharpsy.DataAccess.Stores
                 }
             }
         }
-
-        public async Task<int> UpdateDocument(RoomModel room)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                var parameters = new { room.Title };
-                return await connection.ExecuteAsync("dbo.spUpdateRoom", parameters);
-            }
-        }
-
-        public async Task<int> DeleteRoom(int id)
-        {
-            using (var connections = new SqlConnection(_connectionString))
-            {
-                var parameters = new { RoomId = id };
-                return await connections.ExecuteAsync("dbo.spDeleteRoom", parameters);
-
-            }
-        }
-
         public async Task<RoomModel> FindRoomById(int id)
         {
             using (var connection = new SqlConnection(_connectionString))
             {
                 return await connection.QueryFirstOrDefaultAsync<RoomModel>(
                     Queries.GetRoomById,
-                    new { 
-                        RoomId = id
-                    });
-                
+                    new { RoomId = id });
             }
         }
-
         public async Task<IEnumerable<RoomModel>> GetRoomsByUserId(int id)
         {
             var lookup = new Dictionary<int, RoomModel>();
             using (var connection = new SqlConnection(_connectionString))
             {
                 var parameters = new { UserId = id };
-                
+
                 await connection.QueryAsync<RoomModel, ApplicationUserRoom, RoomModel>(
                     Queries.GetRoomsByUserId,
                     (r, ar) =>
@@ -105,8 +81,47 @@ namespace Sharpsy.DataAccess.Stores
                     },
                     parameters,
                     splitOn: "RoomId,ApplicationUserRoomId");
-                
+
                 return lookup.Values.ToList();
+            }
+        }
+        public async Task<bool> InsertInvitation(RoomInvitationModel roomInvitationModel)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var affected = await connection.ExecuteAsync(
+                    Queries.InserInvitation,
+                    new
+                    {
+                        ReciverEmail = roomInvitationModel.ReciverEmail,
+                        SenderUserId = roomInvitationModel.SenderUserId,
+                        RoomId = roomInvitationModel.RoomId,
+                        InvitationGUID = roomInvitationModel.InvitationGUID.ToString()
+                    });
+
+                return affected == 1;
+            }
+        }
+
+
+
+        //TODO
+        public async Task<int> UpdateDocument(RoomModel room)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var parameters = new { room.Title };
+                return await connection.ExecuteAsync("dbo.spUpdateRoom", parameters);
+            }
+        }
+        //TODO
+        public async Task<int> DeleteRoom(int id)
+        {
+            using (var connections = new SqlConnection(_connectionString))
+            {
+                var parameters = new { RoomId = id };
+                return await connections.ExecuteAsync("dbo.spDeleteRoom", parameters);
+
             }
         }
     }

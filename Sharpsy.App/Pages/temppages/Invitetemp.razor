@@ -1,0 +1,47 @@
+﻿@using Sharpsy.Library.Models
+@using Sharpsy.DataAccess.Stores
+@using Sharpsy.App.Services
+@page "/room/{roomId:int}/invite"
+@inject IRoomStore RoomStore
+@inject State State 
+@inject MailService MailService
+@inject NavigationManager NavigationManager
+
+<h3>invite</h3>
+
+<EditForm Model="@roomInvitationModel" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="Email" @bind-Value="roomInvitationModel.ReciverEmail" />
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+
+@code {
+    [Parameter] public int roomId { get; set; }
+
+    private RoomInvitationModel roomInvitationModel = new RoomInvitationModel();
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var user = await State.GetAuthenticatedUser();
+        roomInvitationModel.SenderUserId = user.Id;
+        roomInvitationModel.InvitationGUID = Guid.NewGuid();
+        roomInvitationModel.RoomId = roomId;
+        roomInvitationModel.InvitationUrl = NavigationManager.BaseUri + "/invitation/" + roomInvitationModel.InvitationGUID;
+
+        var succesfull = await RoomStore.InsertInvitation(roomInvitationModel);
+        if (!succesfull)
+            return;
+
+        await MailService.SendRoomInvitation(roomInvitationModel);
+
+    }
+}

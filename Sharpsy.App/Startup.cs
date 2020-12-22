@@ -42,6 +42,7 @@ namespace Sharpsy.App
             services.AddTransient<IUserStore<ApplicationUser>, UserStore>();
             services.AddTransient<IRoleStore<ApplicationRole>, RoleStore>();
             services.AddScoped<State>();
+            services.AddSingleton<MailService>();
 
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddDefaultTokenProviders();

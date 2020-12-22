@@ -14,6 +14,7 @@ namespace Sharpsy.DataAccess
             InsertRoom = File.ReadAllText(Path.Combine(dir, "Queries/room_insert.sql"));
             InsertApplicationUserRoom = File.ReadAllText(Path.Combine(dir, "Queries/applicationuser_room_insert.sql"));
             GetRoomById = File.ReadAllText(Path.Combine(dir, "Queries/room_get_by_id.sql"));
+            InserInvitation = File.ReadAllText(Path.Combine(dir, "Queries/invitation_insert.sql"));
         }
         
 
@@ -21,5 +22,6 @@ namespace Sharpsy.DataAccess
         public static string InsertRoom { get; set; }
         public static string InsertApplicationUserRoom { get; set; }
         public static string GetRoomById { get; set; }
+        public static string InserInvitation { get; set; }
     }
 }

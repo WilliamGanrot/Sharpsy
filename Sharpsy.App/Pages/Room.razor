@@ -16,7 +16,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        base.OnInitializedAsync();
+        await base.OnInitializedAsync();
         RoomModel = await RoomStore.FindRoomById(roomId);
 
     }
