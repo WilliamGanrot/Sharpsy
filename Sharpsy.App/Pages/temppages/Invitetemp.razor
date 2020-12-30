@@ -1,10 +1,11 @@
 ﻿@using Sharpsy.Library.Models
 @using Sharpsy.DataAccess.Stores
 @using Sharpsy.App.Services
+@using Sharpsy.Library.Services 
 @page "/room/{roomId:int}/invite"
 @inject IRoomStore RoomStore
 @inject State State 
-@inject MailService MailService
+@inject MailerService MailerService
 @inject NavigationManager NavigationManager
 
 <h3>invite</h3>
@@ -41,7 +42,7 @@
         if (!succesfull)
             return;
 
-        await MailService.SendRoomInvitation(roomInvitationModel);
+        await MailerService.SendRoomInvitation(roomInvitationModel);
 
     }
 }

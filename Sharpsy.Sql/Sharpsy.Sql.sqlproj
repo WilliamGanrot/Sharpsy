@@ -63,5 +63,7 @@
     <Build Include="dbo\Tables\ApplicationRole.sql" />
     <Build Include="dbo\Tables\ApplicationUser.sql" />
     <Build Include="dbo\Tables\Room.sql" />
+    <Build Include="dbo\Tables\ApplicationUserRoom.sql" />
+    <Build Include="dbo\Tables\RoomInvitation.sql" />
   </ItemGroup>
 </Project>

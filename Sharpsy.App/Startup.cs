@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Sharpsy.App.Services;
 using Sharpsy.DataAccess.Stores;
 using Sharpsy.Library.Models;
+using Sharpsy.Library.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +43,7 @@ namespace Sharpsy.App
             services.AddTransient<IUserStore<ApplicationUser>, UserStore>();
             services.AddTransient<IRoleStore<ApplicationRole>, RoleStore>();
             services.AddScoped<State>();
-            services.AddSingleton<MailService>();
+            services.AddSingleton<MailerService>();
 
             services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddDefaultTokenProviders();

@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharpsy.Library", "Sharpsy.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharpsy.DataAccess", "Sharpsy.DataAccess\Sharpsy.DataAccess.csproj", "{F4924D62-421D-43E2-9410-CF7D8354E954}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharpsy.Procedures", "Sharpsy.Procedures\Sharpsy.Procedures.csproj", "{A572EA6C-FD51-490F-9868-1590EA012C3C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{F4924D62-421D-43E2-9410-CF7D8354E954}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4924D62-421D-43E2-9410-CF7D8354E954}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4924D62-421D-43E2-9410-CF7D8354E954}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A572EA6C-FD51-490F-9868-1590EA012C3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A572EA6C-FD51-490F-9868-1590EA012C3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A572EA6C-FD51-490F-9868-1590EA012C3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A572EA6C-FD51-490F-9868-1590EA012C3C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
