@@ -1,0 +1,17 @@
+﻿@page "/invitation/{InvitationgGuid}"
+@using Sharpsy.DataAccess.Stores
+@using Sharpsy.App.Services
+@inject IRoomStore RoomStore
+@inject State State 
+
+<h3>RoomInvitatationAccept</h3>
+
+@code {
+    [Parameter]
+    public string InvitationgGuid { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var invitation = await RoomStore.GetRoomInvitation(InvitationgGuid);
+    }
+}

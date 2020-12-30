@@ -12,5 +12,6 @@ namespace Sharpsy.DataAccess.Stores
         Task<IEnumerable<RoomModel>> GetRoomsByUserId(int id);
         Task<int> UpdateDocument(RoomModel room);
         Task<bool> InsertInvitation(RoomInvitationModel roomInvitationModel);
+        Task<RoomInvitationModel> GetRoomInvitation(string InvidationGuid);
     }
 }

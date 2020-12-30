@@ -85,6 +85,7 @@ namespace Sharpsy.DataAccess.Stores
                 return lookup.Values.ToList();
             }
         }
+        
         public async Task<bool> InsertInvitation(RoomInvitationModel roomInvitationModel)
         {
             using (var connection = new SqlConnection(_connectionString))
@@ -103,6 +104,10 @@ namespace Sharpsy.DataAccess.Stores
             }
         }
 
+        public async Task<RoomInvitationModel> GetRoomInvitation(string InvidationGuid)
+        {
+            throw new NotImplementedException();
+        }
 
 
         //TODO
