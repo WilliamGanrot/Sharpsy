@@ -1,3 +1,3 @@
 ﻿UPDATE [dbo].[RoomInvitation]
 SET [dbo].[RoomInvitation].[Status] = @Status
-WHERE [dbo].[RoomInvitation].InvitationId = @InvitationId;
+WHERE [dbo].[RoomInvitation].RoomInvitationId = @InvitationId;

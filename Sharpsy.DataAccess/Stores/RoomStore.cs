@@ -129,7 +129,7 @@ namespace Sharpsy.DataAccess.Stores
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                var parameters = new { Status = (int)RoomInvitationStatus.Accepted };
+                var parameters = new { Status = (int)RoomInvitationStatus.Accepted, InvitationId = invitation.RoomInvitationId };
                 await connection.ExecuteAsync(Queries.UpdateRoomInvitationStatus, parameters);
             }
         }
@@ -137,7 +137,7 @@ namespace Sharpsy.DataAccess.Stores
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                var parameters = new { Status = (int)RoomInvitationStatus.Declined };
+                var parameters = new { Status = (int)RoomInvitationStatus.Declined, InvitationId = invitation.RoomInvitationId };
                 await connection.ExecuteAsync(Queries.UpdateRoomInvitationStatus, parameters);
             }
         }
