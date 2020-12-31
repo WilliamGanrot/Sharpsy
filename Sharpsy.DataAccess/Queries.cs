@@ -16,6 +16,8 @@ namespace Sharpsy.DataAccess
             GetRoomById = File.ReadAllText(Path.Combine(dir, "Queries/room_get_by_id.sql"));
             InserInvitation = File.ReadAllText(Path.Combine(dir, "Queries/invitation_insert.sql"));
             GetFullInvitation = File.ReadAllText(Path.Combine(dir, "Queries/invitation_get_by_id_full.sql"));
+            UpdateRoomInvitationStatus = File.ReadAllText(Path.Combine(dir, "Queries/roominvitation_update_status.sql"));
+            
         }
         
 
@@ -25,5 +27,6 @@ namespace Sharpsy.DataAccess
         public static string GetRoomById { get; set; }
         public static string InserInvitation { get; set; }
         public static string GetFullInvitation { get; set; }
+        public static string UpdateRoomInvitationStatus { get; set; }
     }
 }

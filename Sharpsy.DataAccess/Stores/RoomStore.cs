@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Sharpsy.Library.Enums;
 using Sharpsy.Library.Models;
 using System;
 using System.Collections.Generic;
@@ -124,13 +125,21 @@ namespace Sharpsy.DataAccess.Stores
             }
         }
 
-        public async Task AccpetRoomInvitation(int roomInvitationId)
+        public async Task AccpetRoomInvitation(RoomInvitationModel invitation)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var parameters = new { Status = (int)RoomInvitationStatus.Accepted };
+                await connection.ExecuteAsync(Queries.UpdateRoomInvitationStatus, parameters);
+            }
         }
-        public async Task DeclineRoomInvitation(int roomInvitationId)
+        public async Task DeclineRoomInvitation(RoomInvitationModel invitation)
         {
-            throw new NotImplementedException();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var parameters = new { Status = (int)RoomInvitationStatus.Declined };
+                await connection.ExecuteAsync(Queries.UpdateRoomInvitationStatus, parameters);
+            }
         }
 
         //TODO

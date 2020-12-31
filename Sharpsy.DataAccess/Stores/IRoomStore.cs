@@ -13,5 +13,7 @@ namespace Sharpsy.DataAccess.Stores
         Task<int> UpdateDocument(RoomModel room);
         Task<bool> InsertInvitation(RoomInvitationModel roomInvitationModel);
         Task<RoomInvitationModel> GetRoomInvitation(string InvidationGuid);
+        Task AccpetRoomInvitation(RoomInvitationModel invitation);
+        Task DeclineRoomInvitation(RoomInvitationModel invitation);
     }
 }
