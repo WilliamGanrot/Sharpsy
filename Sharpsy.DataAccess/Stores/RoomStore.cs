@@ -104,11 +104,34 @@ namespace Sharpsy.DataAccess.Stores
             }
         }
 
-        public async Task<RoomInvitationModel> GetRoomInvitation(string InvidationGuid)
+        public async Task<RoomInvitationModel> GetRoomInvitation(string InvitationGuid)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var parameters = new { InvitationGuid = InvitationGuid };
+
+                var invitation = await connection.QueryAsync<RoomInvitationModel, RoomModel, ApplicationUser, RoomInvitationModel>(
+                    Queries.GetFullInvitation, 
+                    (roomInvitation, room, user) => {
+                        roomInvitation.Room = room;
+                        roomInvitation.Sender = user;
+                        return roomInvitation;
+                    },
+                    parameters,
+                    splitOn: "RoomInvitationId, RoomId, Id");
+
+                return invitation.FirstOrDefault();
+            }
+        }
+
+        public async Task AccpetRoomInvitation(int roomInvitationId)
         {
             throw new NotImplementedException();
         }
-
+        public async Task DeclineRoomInvitation(int roomInvitationId)
+        {
+            throw new NotImplementedException();
+        }
 
         //TODO
         public async Task<int> UpdateDocument(RoomModel room)

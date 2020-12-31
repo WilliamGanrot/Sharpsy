@@ -1,17 +1,58 @@
 ﻿@page "/invitation/{InvitationgGuid}"
 @using Sharpsy.DataAccess.Stores
 @using Sharpsy.App.Services
+@using Sharpsy.App.Components
+@using Sharpsy.Library.Models
+@using Sharpsy.Library.Enums
 @inject IRoomStore RoomStore
-@inject State State 
+@inject State State
+@inject NavigationManager NavigationManager
 
-<h3>RoomInvitatationAccept</h3>
+@if (Invitation == null)
+{
+    <p>not found</p>
+}
+else if (!IsInvitedUser)
+{
+    <NotAuthorized></NotAuthorized>
+}
+else if (Invitation.Status == RoomInvitationStatus.Accepted)
+{
+    <p>This inviatation has allready been accepted</p>
+}
+else if (Invitation.Status == RoomInvitationStatus.Declined)
+{
+    <p>This inviatation has allready been declined</p>
+}
+else if (Invitation.Status == RoomInvitationStatus.Expired)
+{
+    <p>This inviatation has expired</p>
+}
+else if (Invitation.Status == RoomInvitationStatus.NoAnswer)
+{
+    <p>You have been invited to the room @Invitation.Room.Title by @Invitation.Sender.Email</p>
+    <p>Do you wish to accept the invitation? <span style="color:blue">Yes</span>/<span style="color:blue">No</span></p>
+}
+
 
 @code {
     [Parameter]
     public string InvitationgGuid { get; set; }
 
+    public bool IsInvitedUser { get; set; }
+
+    public RoomInvitationModel Invitation { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        var invitation = await RoomStore.GetRoomInvitation(InvitationgGuid);
+        var user = await State.GetAuthenticatedUser();
+        if (user == null)
+            NavigationManager.NavigateTo("/login");
+
+        Invitation = await RoomStore.GetRoomInvitation(InvitationgGuid);
+        if (Invitation == null)
+            return;
+
+        IsInvitedUser = Invitation.ReciverEmail == user.Email;
     }
 }

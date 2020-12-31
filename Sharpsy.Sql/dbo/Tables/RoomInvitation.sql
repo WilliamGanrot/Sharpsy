@@ -1,8 +1,9 @@
 ﻿CREATE TABLE [dbo].[RoomInvitation]
 (
-	[Id]				INT				NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	[RoomInvitationId]				INT				NOT NULL IDENTITY(1,1) PRIMARY KEY,
 	[RoomId]			INT				NOT NULL,
 	[SenderUserId]		INT				NOT NULL,
+	[Status]			INT				NOT NULL DEFAULT 0,
 	[InvitationGUID]	nvarchar(36)	NOT NULL,
 	[ReciverEmail]		nvarchar(100)	NOT NULL,
 	[Created]			datetime		NOT NULL DEFAULT CURRENT_TIMESTAMP,

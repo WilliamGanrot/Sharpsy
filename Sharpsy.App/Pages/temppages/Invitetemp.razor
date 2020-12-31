@@ -1,10 +1,12 @@
 ﻿@using Sharpsy.Library.Models
 @using Sharpsy.DataAccess.Stores
 @using Sharpsy.App.Services
-@using Sharpsy.Library.Services 
+@using Sharpsy.Library.Services
+@using Microsoft.AspNetCore.Identity
 @page "/room/{roomId:int}/invite"
 @inject IRoomStore RoomStore
-@inject State State 
+@inject UserManager<ApplicationUser> UserManager
+@inject State State
 @inject MailerService MailerService
 @inject NavigationManager NavigationManager
 
@@ -34,7 +36,7 @@
     {
         var user = await State.GetAuthenticatedUser();
         roomInvitationModel.SenderUserId = user.Id;
-        roomInvitationModel.InvitationGUID = Guid.NewGuid();
+        roomInvitationModel.InvitationGUID = Guid.NewGuid().ToString();
         roomInvitationModel.RoomId = roomId;
         roomInvitationModel.InvitationUrl = NavigationManager.BaseUri + "/invitation/" + roomInvitationModel.InvitationGUID;
 

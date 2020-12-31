@@ -23,6 +23,9 @@
     <None Update="Queries\get_rooms_by_userId.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\invitation_get_by_id_full.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\invitation_insert.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
