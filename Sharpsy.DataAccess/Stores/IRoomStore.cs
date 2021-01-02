@@ -15,5 +15,6 @@ namespace Sharpsy.DataAccess.Stores
         Task<RoomInvitationModel> GetRoomInvitation(string InvidationGuid);
         Task AccpetRoomInvitation(RoomInvitationModel invitation);
         Task DeclineRoomInvitation(RoomInvitationModel invitation);
+        Task<int> LookForExpieringRoomInvitations();
     }
 }

@@ -17,17 +17,17 @@ namespace Sharpsy.Library.Services
 
         }
 
-        public async Task SendRoomInvitation(RoomInvitationModel roomInvitationModel)
+        public void SendRoomInvitation(RoomInvitationModel roomInvitationModel)
         {
             MimeMessage message = new MimeMessage();
 
             message.From.Add(new MailboxAddress("Sharpsy", _smtpSettings.From));
-            message.To.Add(new MailboxAddress(address: roomInvitationModel.ReciverEmail));
+            message.To.Add(new MailboxAddress(roomInvitationModel.ReciverEmail, roomInvitationModel.ReciverEmail));
             message.Subject = "You have been invited to a Sharpsy room";
             message.Body = new TextPart("plain")
             {
                 Text = "this is the invitation project, click here to accept: " + roomInvitationModel.InvitationUrl
-            }; 
+            };
 
             using (var client = new MailKit.Net.Smtp.SmtpClient())
             {

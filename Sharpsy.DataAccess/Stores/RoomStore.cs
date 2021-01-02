@@ -142,6 +142,15 @@ namespace Sharpsy.DataAccess.Stores
             }
         }
 
+        public async Task<int> LookForExpieringRoomInvitations()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return await connection.ExecuteAsync(Queries.LookForExpireringRoomInvitations);
+            }
+        }
+
+
         //TODO
         public async Task<int> UpdateDocument(RoomModel room)
         {
