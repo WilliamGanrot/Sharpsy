@@ -1,23 +1,45 @@
 ﻿@using Sharpsy.Library.Models
-@using Sharpsy.DataAccess.Stores 
+@using Sharpsy.DataAccess.Stores
+@using Sharpsy.App.Components
+@using Sharpsy.App.Services
 @page "/room/{roomId:int}"
 @inject IRoomStore RoomStore
+@inject State State
 
-@if(RoomModel != null)
+@if (RoomModel == null)
+{
+    <p>not found</p>
+}
+else if (!IsAuthorizedUser)
+{
+    <NotAuthorized></NotAuthorized>
+}
+else
 {
     <h3>Room @RoomModel.Title</h3>
 }
+@code {
 
-@code {     
-
-    [Parameter] 
+    [Parameter]
     public int roomId { get; set; }
     public RoomModel RoomModel { get; set; }
+
+    public ApplicationUser User { get; set; }
+
+    public bool IsAuthorizedUser { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+
         RoomModel = await RoomStore.FindRoomById(roomId);
+        if (RoomModel == null)
+            return;
+
+        User = await State.GetAuthenticatedUser();
+        IsAuthorizedUser = User == null
+            ? false
+            : await RoomStore.IsUserInRoom(User.Id, roomId);
 
     }
 }

@@ -48,8 +48,9 @@ namespace Sharpsy.App.Pages
 
         public async Task OnGetAsync(string returnUrl = null)
         {
-            ReturnUrl ??= Url.Content("~/");
+            returnUrl = returnUrl ?? Url.Content("~/");
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            ReturnUrl = returnUrl;
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -64,7 +65,7 @@ namespace Sharpsy.App.Pages
                 
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
-            return Page();
+            return LocalRedirect(returnUrl);
         }
     }
 }

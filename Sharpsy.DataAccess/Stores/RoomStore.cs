@@ -127,10 +127,15 @@ namespace Sharpsy.DataAccess.Stores
 
         public async Task AccpetRoomInvitation(RoomInvitationModel invitation)
         {
+            //TODO alose add user to room
             using (var connection = new SqlConnection(_connectionString))
             {
-                var parameters = new { Status = (int)RoomInvitationStatus.Accepted, InvitationId = invitation.RoomInvitationId };
-                await connection.ExecuteAsync(Queries.UpdateRoomInvitationStatus, parameters);
+                await connection.ExecuteAsync(
+                    Queries.UpdateRoomInvitationStatus, 
+                    new { 
+                        Status = (int)RoomInvitationStatus.Accepted, 
+                        InvitationId = invitation.RoomInvitationId 
+                    });
             }
         }
         public async Task DeclineRoomInvitation(RoomInvitationModel invitation)
@@ -150,24 +155,18 @@ namespace Sharpsy.DataAccess.Stores
             }
         }
 
-
-        //TODO
-        public async Task<int> UpdateDocument(RoomModel room)
+        public async Task<bool> IsUserInRoom(int userId, int roomId)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using(var connection = new SqlConnection(_connectionString))
             {
-                var parameters = new { room.Title };
-                return await connection.ExecuteAsync("dbo.spUpdateRoom", parameters);
-            }
-        }
-        //TODO
-        public async Task<int> DeleteRoom(int id)
-        {
-            using (var connections = new SqlConnection(_connectionString))
-            {
-                var parameters = new { RoomId = id };
-                return await connections.ExecuteAsync("dbo.spDeleteRoom", parameters);
+                var res =  await connection.QueryFirstOrDefaultAsync<ApplicationUserRoom>(
+                    Queries.IsUserInRoom,
+                    new { 
+                        RoomId = roomId,
+                        UserId = userId
+                    });
 
+                return res != null;
             }
         }
     }

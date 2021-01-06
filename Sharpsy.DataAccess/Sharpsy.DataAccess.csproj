@@ -35,6 +35,9 @@
     <None Update="Queries\roominvitation_update_status.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\room_check_if_user_is_in_room.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\room_get_by_id.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

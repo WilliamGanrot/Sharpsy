@@ -3,6 +3,7 @@
 @using Sharpsy.App.Services
 @using Sharpsy.Library.Services
 @using Microsoft.AspNetCore.Identity
+@using Sharpsy.App.Components 
 @page "/room/{roomId:int}/invite"
 @inject IRoomStore RoomStore
 @inject UserManager<ApplicationUser> UserManager
@@ -10,26 +11,47 @@
 @inject MailerService MailerService
 @inject NavigationManager NavigationManager
 
-<h3>invite</h3>
 
-<EditForm Model="@roomInvitationModel" OnValidSubmit="@HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+@if (!IsAuthorizedUser)
+{
+    <NotAuthorized></NotAuthorized>
+}
+else
+{
+    <h3>invite</h3>
 
-    <InputText id="Email" @bind-Value="roomInvitationModel.ReciverEmail" />
+    <EditForm Model="@roomInvitationModel" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <button type="submit">Submit</button>
-</EditForm>
+        <InputText id="Email" @bind-Value="roomInvitationModel.ReciverEmail" />
 
+        <button type="submit">Submit</button>
+    </EditForm>
+
+    <p class="error">
+        @Error
+    </p>
+}
 
 @code {
     [Parameter] public int roomId { get; set; }
 
     private RoomInvitationModel roomInvitationModel = new RoomInvitationModel();
 
-    protected override Task OnInitializedAsync()
+    public string Error;
+
+    public bool IsAuthorizedUser { get; set; }
+
+    public ApplicationUser User { get; set; }
+    protected override async Task OnInitializedAsync()
     {
-        return base.OnInitializedAsync();
+        base.OnInitializedAsync();
+        User = await State.GetAuthenticatedUser();
+        IsAuthorizedUser = User == null
+            ? false
+            : await RoomStore.IsUserInRoom(User.Id, roomId);
+        return;
     }
 
     private async Task HandleValidSubmit()
@@ -39,6 +61,29 @@
         roomInvitationModel.InvitationGUID = Guid.NewGuid().ToString();
         roomInvitationModel.RoomId = roomId;
         roomInvitationModel.InvitationUrl = NavigationManager.BaseUri + "/invitation/" + roomInvitationModel.InvitationGUID;
+
+        var invitedUser = await UserManager.FindByEmailAsync(roomInvitationModel.ReciverEmail);
+        if (invitedUser != null) //user doest exists
+        {
+
+            if (invitedUser.Id == user.Id)
+            {
+                Error = "You can not invite yourself";
+                StateHasChanged();
+                return;
+            }
+
+            var isUserAllreadyInRoom = await RoomStore.IsUserInRoom(invitedUser.Id, roomInvitationModel.RoomId);
+            if (isUserAllreadyInRoom)
+            {
+                Error = "The user is allready a member in the room";
+                StateHasChanged();
+                return;
+            }
+        }
+
+
+
 
         var succesfull = await RoomStore.InsertInvitation(roomInvitationModel);
         if (!succesfull)

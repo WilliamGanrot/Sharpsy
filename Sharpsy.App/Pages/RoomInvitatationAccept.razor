@@ -31,11 +31,13 @@ else if (Invitation.Status == RoomInvitationStatus.Expired)
 else if (Invitation.Status == RoomInvitationStatus.NoAnswer)
 {
     <p>You have been invited to the room @Invitation.Room.Title by @Invitation.Sender.Email</p>
-    <p>Do you wish to accept the invitation? 
-        <span style="color:blue" @onclick="AcceptInvitation">Yes</span>/
-        <span style="color:blue" @onclick="DeclineInvitation">No</span>
+    <p>
+        Do you wish to accept the invitation?
+        <span style="color:blue;cursor: pointer;" @onclick="AcceptInvitation">Yes</span> /
+        <span style="color:blue;cursor: pointer;" @onclick="DeclineInvitation">No</span>
     </p>
 }
+
 
 
 @code {
@@ -50,7 +52,12 @@ else if (Invitation.Status == RoomInvitationStatus.NoAnswer)
     {
         var user = await State.GetAuthenticatedUser();
         if (user == null)
-            NavigationManager.NavigateTo("/login");
+        {
+            var returnUrl = System.Web.HttpUtility.UrlEncode($"/invitation/{InvitationgGuid}");
+            NavigationManager.NavigateTo($"/login?returnUrl={returnUrl}", forceLoad: true);
+            return;
+        }
+
 
         Invitation = await RoomStore.GetRoomInvitation(InvitationgGuid);
         if (Invitation == null)
@@ -62,7 +69,7 @@ else if (Invitation.Status == RoomInvitationStatus.NoAnswer)
     private async Task AcceptInvitation()
     {
         await RoomStore.AccpetRoomInvitation(Invitation);
-        NavigationManager.NavigateTo("/room/"+Invitation.RoomId);
+        NavigationManager.NavigateTo("/room/" + Invitation.RoomId);
     }
 
     private async Task DeclineInvitation()
