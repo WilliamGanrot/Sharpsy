@@ -3,16 +3,19 @@
 @using Sharpsy.Library.Models
 @using System.Text.Json
 @using System.Security.Claims
+@using Blazor.Extensions
 @using Sharpsy.DataAccess.Stores
-@using Sharpsy.App.Services 
+@using Sharpsy.App.Services
 @using Sharpsy.App.Components
+@using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity;
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 @inject IStorage RoomStore
+@inject ChatHub ChatHub
 @inject UserManager<ApplicationUser> UserManager;
-@inject State State   
+@inject State State
 
 
 <div style="background-color:firebrick; width:100%; height:100vh;">
@@ -32,25 +35,25 @@
         </div>
         @if (ActiveRoom != null)
         {
-        <div style="float:right;width:65%;float:right">
-            <div style="height:82vh;background-color:#fff;padding-top: 1rem;overflow-y:auto;margin-bottom:2rem">
-                @if (ActiveRoom.Messages != null)
-                {
-                    foreach (var message in ActiveRoom.Messages)
+            <div style="float:right;width:65%;float:right">
+                <div style="height:82vh;background-color:#fff;padding-top: 1rem;overflow-y:auto;margin-bottom:2rem">
+                    @if (ActiveRoom.Messages != null)
                     {
-                <div style="padding-left:1.5rem; padding-right:1.5rem">
-                    <p style="font-weight:600;margin-bottom:0;">@message.Text</p>
-                    <p style="font-weight:500;font-size:.6rem">@message.User.Email <span> | </span><span style="color:firebrick">@message.Sent</span></p>
-                </div>
-                        <hr />
+                        foreach (var message in ActiveRoom.Messages)
+                        {
+                            <div style="padding-left:1.5rem; padding-right:1.5rem">
+                                <p style="font-weight:600;margin-bottom:0;">@message.Text</p>
+                                <p style="font-weight:500;font-size:.6rem">@message.User.Email <span> | </span><span style="color:firebrick">@message.Sent</span></p>
+                            </div>
+                            <hr />
+                        }
                     }
-                }
-            </div>
-            <div style="bottom:30px;width:100%;float:right">
-                <textarea @bind="MessageText" @bind:event="oninput" rows="3" placeholder="Write a message" style="width:100%;resize: none;" @onkeydown="@Enter"></textarea>
-            </div>
+                </div>
+                <div style="bottom:30px;width:100%;float:right">
+                    <textarea @bind="MessageText" @bind:event="oninput" rows="3" placeholder="Write a message" style="width:100%;resize: none;" @onkeydown="@Enter"></textarea>
+                </div>
 
-        </div>
+            </div>
         }
 
     </div>
@@ -58,82 +61,105 @@
 
 
 
-    @code{
+@code{
 
-        public IEnumerable<RoomModel> Rooms { get; set; }
+    public IEnumerable<RoomModel> Rooms { get; set; }
 
-        public RoomModel ActiveRoom { get; set; }
+    public RoomModel ActiveRoom { get; set; }
 
-        public string MessageText { get; set; }
+    public string MessageText { get; set; }
 
-        public ApplicationUser User { get; set; }
+    public ApplicationUser User { get; set; }
 
-        public bool IsAuthorizedUser { get; set; }
+    public bool IsAuthorizedUser { get; set; }
 
-        public int Page { get; set; }
+    public int Page { get; set; }
 
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        User = await State.GetAuthenticatedUser();
+        if (User == null)
         {
-            base.OnInitialized();
-
-            User = await State.GetAuthenticatedUser();
-            if (User == null)
-            {
-                NavigationManager.NavigateTo("/notauthorized");
-                return;
-            }
-
-            Rooms = await RoomStore.GetRoomsByUserId(User.Id);
+            NavigationManager.NavigateTo("/notauthorized");
+            return;
         }
 
-        public async Task ChangeActiveRoom(int roomId)
-        {
-            IsAuthorizedUser = User == null
-                ? false
-                : await RoomStore.IsUserInRoom(User.Id, roomId);
-
-            if (!IsAuthorizedUser)
-            {
-                return;
-                NavigationManager.NavigateTo("/notauthorized");
-            }
-
-            ActiveRoom = await RoomStore.FindRoomById(roomId);
-            ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(roomId, 0);
-        }
-
-        public async Task Enter(KeyboardEventArgs e)
-        {
-            if (e.Code == "Enter" || e.Code == "NumpadEnter")
-            {
-                if (!string.IsNullOrEmpty(MessageText))
-                {
-
-                    IsAuthorizedUser = User == null
-                        ? false
-                        : await RoomStore.IsUserInRoom(User.Id, ActiveRoom.RoomId);
-
-                    if (IsAuthorizedUser)
-                    {
-                        var message = new Message
-                        {
-                            Text = MessageText,
-                            UserId = User.Id,
-                            RoomId = ActiveRoom.RoomId
-                        };
-
-                        var res = await RoomStore.InsertMessage(message);
-                        if (res != 0)
-                        {
-                            MessageText = "";
-                            Page = 0;
-                            ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(ActiveRoom.RoomId, Page);
-                        }
-                    }
-
-
-                }
-            }
-        }
+        Rooms = await RoomStore.GetRoomsByUserId(User.Id);
 
     }
+
+    public async Task ConnectToChatHub()
+    {
+        if (Rooms != null)
+        {
+            foreach (var room in Rooms)
+                await ChatHub.JoinGroup(room.RoomId.ToString());
+        }
+    }
+
+    public Task OnBroadcastMessage(string name, string message)
+    {
+        return Task.CompletedTask;
+    }
+
+    public async Task SendToRoom(string message)
+    {
+        await ChatHub.SendMessageToGroup(ActiveRoom.RoomId.ToString(), message);
+        return;
+    }
+
+    public async Task ChangeActiveRoom(int roomId)
+    {
+        IsAuthorizedUser = User == null
+            ? false
+            : await RoomStore.IsUserInRoom(User.Id, roomId);
+
+        if (!IsAuthorizedUser)
+        {
+            return;
+            NavigationManager.NavigateTo("/notauthorized");
+        }
+
+        ActiveRoom = await RoomStore.FindRoomById(roomId);
+        ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(roomId, 0);
+    }
+
+    public async Task Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            if (!string.IsNullOrEmpty(MessageText))
+            {
+
+                IsAuthorizedUser = User == null
+                    ? false
+                    : await RoomStore.IsUserInRoom(User.Id, ActiveRoom.RoomId);
+
+                if (IsAuthorizedUser)
+                {
+                    var message = new Message
+                    {
+                        Text = MessageText,
+                        UserId = User.Id,
+                        RoomId = ActiveRoom.RoomId
+                    };
+
+                    var res = await RoomStore.InsertMessage(message);
+                    if (res != 0)
+                    {
+                        await SendToRoom(message.Text);
+                        MessageText = "";
+                        Page = 0;
+                        ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(ActiveRoom.RoomId, Page);
+                    }
+                }
+
+
+            }
+        }
+    }
+
+
+}
