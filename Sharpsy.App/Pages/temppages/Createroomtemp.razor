@@ -3,12 +3,12 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity;
 @using Sharpsy.DataAccess.Stores
-@using Sharpsy.App.Services 
+@using Sharpsy.App.Services
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
-@inject IRoomStore RoomStore
+@inject IStorage RoomStore
 @inject UserManager<ApplicationUser> UserManager
-@inject State State 
+@inject State State
 
 <EditForm Model="@room" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />

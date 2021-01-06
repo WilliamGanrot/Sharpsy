@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 
 namespace Sharpsy.DataAccess.Stores
 {
-    public class RoomStore : IRoomStore
+    public class Storage : IStorage
     {
         private readonly string _connectionString;
-        public RoomStore(string ConnectionString)
+        public Storage(string ConnectionString)
         {
             _connectionString = ConnectionString;
         }
@@ -193,6 +193,29 @@ namespace Sharpsy.DataAccess.Stores
 
                 return res != null;
             }
+        }
+
+        public async Task<int> InsertMessage(Message message)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return await connection.ExecuteScalarAsync<int>(
+                    Queries.InsertMessage,
+                    new
+                    {
+                        UserId = message.UserId,
+                        Text = message.Text,
+                        RoomId = message.RoomId
+                    });
+            }
+        }
+        public async Task<IEnumerable<Message>> GetMessagePageInRoom(int roomId, int page)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+
+            }
+            throw new NotImplementedException();
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Sharpsy.DataAccess.Stores
 {
-    public interface IRoomStore
+    public interface IStorage
     {
         Task CreateRoom(RoomModel room);
         Task<RoomModel> FindRoomById(int id);
@@ -15,5 +15,7 @@ namespace Sharpsy.DataAccess.Stores
         Task DeclineRoomInvitation(RoomInvitationModel invitation);
         Task<int> LookForExpieringRoomInvitations();
         Task<bool> IsUserInRoom(int userId, int roomId);
+        Task<int> InsertMessage(Message message);
+        Task<IEnumerable<Message>> GetMessagePageInRoom(int roomId, int page);
     }
 }

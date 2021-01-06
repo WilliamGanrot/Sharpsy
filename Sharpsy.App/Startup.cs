@@ -50,7 +50,7 @@ namespace Sharpsy.App
 
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ApplicationUser>>();
 
-            services.AddScoped<IRoomStore>((s) => new RoomStore(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped<IStorage>((s) => new Storage(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllers();
 
         }

@@ -3,7 +3,7 @@
 @using Sharpsy.App.Components
 @using Sharpsy.App.Services
 @page "/room/{roomId:int}"
-@inject IRoomStore RoomStore
+@inject IStorage RoomStore
 @inject State State
 
 @if (RoomModel == null)
@@ -25,7 +25,7 @@ else
         </div>
 
         <div style=" position: absolute; bottom: 30px; width: 80%;left: 50%; transform: translateX(-50%);">
-            <textarea rows="3" style="width:100%;resize: none;"></textarea>
+            <textarea @bind="MessageText" @bind:event="oninput" rows="3" style="width:100%;resize: none;" @onkeydown="@Enter"></textarea>
         </div>
     </div>
 }
@@ -38,6 +38,8 @@ else
     public ApplicationUser User { get; set; }
 
     public bool IsAuthorizedUser { get; set; }
+
+    private string MessageText;
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,5 +54,26 @@ else
             ? false
             : await RoomStore.IsUserInRoom(User.Id, roomId);
 
+    }
+
+    public async Task Enter(KeyboardEventArgs e)
+    {
+        fif (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            if (!string.IsNullOrEmpty(MessageText))
+            {
+                var message = new Message
+                {
+                    Text = MessageText,
+                    UserId = User.Id,
+                    RoomId = roomId
+                };
+
+                var res = await RoomStore.InsertMessage(message);
+                if (res != 0)
+                    MessageText = "";
+
+            }
+        }
     }
 }

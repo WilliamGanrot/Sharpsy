@@ -29,6 +29,9 @@
     <None Update="Queries\invitation_insert.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\message_insert.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\roomInvitation_update_expiering_status.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

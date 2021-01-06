@@ -5,7 +5,7 @@
 @using Microsoft.AspNetCore.Identity
 @using Sharpsy.App.Components 
 @page "/room/{roomId:int}/invite"
-@inject IRoomStore RoomStore
+@inject IStorage RoomStore
 @inject UserManager<ApplicationUser> UserManager
 @inject State State
 @inject MailerService MailerService

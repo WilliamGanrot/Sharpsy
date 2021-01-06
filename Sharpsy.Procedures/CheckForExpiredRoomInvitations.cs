@@ -11,7 +11,7 @@ namespace Sharpsy.Procedures
     public static class CheckForExpiredRoomInvitations
     {
         private static readonly string _connectionString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Sharpsy.sql;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-        private static readonly IRoomStore _roomStore = new RoomStore(_connectionString);
+        private static readonly IStorage _roomStore = new Storage(_connectionString);
 
         [FunctionName("CheckForExpiredRoomInvitations")]
         public static async Task Run([TimerTrigger("0 */1 * * * *")]TimerInfo myTimer, TraceWriter log)
