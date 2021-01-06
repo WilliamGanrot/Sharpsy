@@ -17,6 +17,7 @@ namespace Sharpsy.Library.Models
         public RoomInvitationStatus Status { get; set; }
 
         public ApplicationUser Sender { get; set; }
+        public ApplicationUser InvitedUser { get; set; }
         public RoomModel Room { get; set; }
     }
 }

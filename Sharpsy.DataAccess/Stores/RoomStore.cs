@@ -127,15 +127,40 @@ namespace Sharpsy.DataAccess.Stores
 
         public async Task AccpetRoomInvitation(RoomInvitationModel invitation)
         {
-            //TODO alose add user to room
             using (var connection = new SqlConnection(_connectionString))
             {
-                await connection.ExecuteAsync(
-                    Queries.UpdateRoomInvitationStatus, 
-                    new { 
-                        Status = (int)RoomInvitationStatus.Accepted, 
-                        InvitationId = invitation.RoomInvitationId 
-                    });
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        await connection.ExecuteAsync(
+                            Queries.UpdateRoomInvitationStatus,
+                            new
+                            {
+                                Status = (int)RoomInvitationStatus.Accepted,
+                                InvitationId = invitation.RoomInvitationId
+                            },
+                            transaction);
+
+
+                        await connection.ExecuteScalarAsync(
+                            Queries.InsertApplicationUserRoom,
+                            new
+                            {
+                                RoomId = invitation.RoomId,
+                                UserId = invitation.InvitedUser.Id
+                            },
+                            transaction);
+
+                        transaction.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
             }
         }
         public async Task DeclineRoomInvitation(RoomInvitationModel invitation)

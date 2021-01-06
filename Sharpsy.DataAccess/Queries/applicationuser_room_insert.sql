@@ -1,3 +1,3 @@
 ﻿insert into dbo.[ApplicationUserRoom](UserId, RoomId)
-OUTPUT INSERTED.Id
+OUTPUT INSERTED.ApplicationUserRoomId
 values(@UserId, @RoomId)

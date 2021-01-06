@@ -62,6 +62,12 @@ else if (Invitation.Status == RoomInvitationStatus.NoAnswer)
         if (Invitation == null)
             return;
 
+        IsInvitedUser = Invitation.ReciverEmail == user.Email;
+        if (IsInvitedUser)
+            Invitation.InvitedUser = user;
+        else
+            return;
+
         var userAllreadyInRoom = await RoomStore.IsUserInRoom(user.Id, Invitation.RoomId);
         if (userAllreadyInRoom)
         {
@@ -69,7 +75,6 @@ else if (Invitation.Status == RoomInvitationStatus.NoAnswer)
             return;
         }
 
-        IsInvitedUser = Invitation.ReciverEmail == user.Email;
     }
 
     private async Task AcceptInvitation()
