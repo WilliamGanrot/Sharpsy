@@ -58,7 +58,7 @@ else
 
     public async Task Enter(KeyboardEventArgs e)
     {
-        fif (e.Code == "Enter" || e.Code == "NumpadEnter")
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
         {
             if (!string.IsNullOrEmpty(MessageText))
             {
