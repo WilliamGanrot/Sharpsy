@@ -71,7 +71,7 @@ else if (Invitation.Status == RoomInvitationStatus.NoAnswer)
         var userAllreadyInRoom = await RoomStore.IsUserInRoom(user.Id, Invitation.RoomId);
         if (userAllreadyInRoom)
         {
-            NavigationManager.NavigateTo($"room/{Invitation.RoomId}");
+            NavigationManager.NavigateTo("/");
             return;
         }
 
@@ -80,7 +80,7 @@ else if (Invitation.Status == RoomInvitationStatus.NoAnswer)
     private async Task AcceptInvitation()
     {
         await RoomStore.AccpetRoomInvitation(Invitation);
-        NavigationManager.NavigateTo("/room/" + Invitation.RoomId);
+        NavigationManager.NavigateTo("/");
     }
 
     private async Task DeclineInvitation()

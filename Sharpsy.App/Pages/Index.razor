@@ -15,37 +15,125 @@
 @inject State State   
 
 
+<div style="background-color:firebrick; width:100%; height:100vh;">
 
-@if (rooms != null)
-{
-    foreach (var room in rooms)
-    {
-        <div @onclick="@(() => NavigationManager.NavigateTo("room/" + room.RoomId))">
-            @room.Title
+    <div style="width: 82%; margin: auto;padding-top:2rem;padding-bottom:2rem;height:100vh">
+        <div style="height:100%;width:32%;background-color:#fff;float:left;padding: .5em;">
+            @if (Rooms != null)
+            {
+                foreach (var room in Rooms)
+                {
+                    <div style="cursor:pointer" @onclick="@(() => ChangeActiveRoom(room.RoomId))">
+                        @room.Title
+                    </div>
+                    <hr />
+                }
+            }
         </div>
-        <hr />
-        
-    }
-}
-
-
-@code{
-
-    public IEnumerable<RoomModel> rooms { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        base.OnInitialized();
-
-        var user = await State.GetAuthenticatedUser();
-        if (user == null)
+        @if (ActiveRoom != null)
         {
-            NavigationManager.NavigateTo("/notauthorized");
-            return;
+        <div style="float:right;width:65%;float:right">
+            <div style="height:82vh;background-color:#fff;padding-top: 1rem;overflow-y:auto;margin-bottom:2rem">
+                @if (ActiveRoom.Messages != null)
+                {
+                    foreach (var message in ActiveRoom.Messages)
+                    {
+                <div style="padding-left:1.5rem; padding-right:1.5rem">
+                    <p style="font-weight:600;margin-bottom:0;">@message.Text</p>
+                    <p style="font-weight:500;font-size:.6rem">@message.User.Email <span> | </span><span style="color:firebrick">@message.Sent</span></p>
+                </div>
+                        <hr />
+                    }
+                }
+            </div>
+            <div style="bottom:30px;width:100%;float:right">
+                <textarea @bind="MessageText" @bind:event="oninput" rows="3" placeholder="Write a message" style="width:100%;resize: none;" @onkeydown="@Enter"></textarea>
+            </div>
+
+        </div>
         }
-        rooms = await RoomStore.GetRoomsByUserId(user.Id);
-        
+
+    </div>
+</div>
+
+
+
+    @code{
+
+        public IEnumerable<RoomModel> Rooms { get; set; }
+
+        public RoomModel ActiveRoom { get; set; }
+
+        public string MessageText { get; set; }
+
+        public ApplicationUser User { get; set; }
+
+        public bool IsAuthorizedUser { get; set; }
+
+        public int Page { get; set; }
+
+        protected override async Task OnInitializedAsync()
+        {
+            base.OnInitialized();
+
+            User = await State.GetAuthenticatedUser();
+            if (User == null)
+            {
+                NavigationManager.NavigateTo("/notauthorized");
+                return;
+            }
+
+            Rooms = await RoomStore.GetRoomsByUserId(User.Id);
+        }
+
+        public async Task ChangeActiveRoom(int roomId)
+        {
+            IsAuthorizedUser = User == null
+                ? false
+                : await RoomStore.IsUserInRoom(User.Id, roomId);
+
+            if (!IsAuthorizedUser)
+            {
+                return;
+                NavigationManager.NavigateTo("/notauthorized");
+            }
+
+            ActiveRoom = await RoomStore.FindRoomById(roomId);
+            ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(roomId, 0);
+        }
+
+        public async Task Enter(KeyboardEventArgs e)
+        {
+            if (e.Code == "Enter" || e.Code == "NumpadEnter")
+            {
+                if (!string.IsNullOrEmpty(MessageText))
+                {
+
+                    IsAuthorizedUser = User == null
+                        ? false
+                        : await RoomStore.IsUserInRoom(User.Id, ActiveRoom.RoomId);
+
+                    if (IsAuthorizedUser)
+                    {
+                        var message = new Message
+                        {
+                            Text = MessageText,
+                            UserId = User.Id,
+                            RoomId = ActiveRoom.RoomId
+                        };
+
+                        var res = await RoomStore.InsertMessage(message);
+                        if (res != 0)
+                        {
+                            MessageText = "";
+                            Page = 0;
+                            ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(ActiveRoom.RoomId, Page);
+                        }
+                    }
+
+
+                }
+            }
+        }
+
     }
-
-
-}
