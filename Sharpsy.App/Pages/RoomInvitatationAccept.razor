@@ -58,10 +58,16 @@ else if (Invitation.Status == RoomInvitationStatus.NoAnswer)
             return;
         }
 
-
         Invitation = await RoomStore.GetRoomInvitation(InvitationgGuid);
         if (Invitation == null)
             return;
+
+        var userAllreadyInRoom = await RoomStore.IsUserInRoom(user.Id, Invitation.RoomId);
+        if (userAllreadyInRoom)
+        {
+            NavigationManager.NavigateTo($"room/{Invitation.RoomId}");
+            return;
+        }
 
         IsInvitedUser = Invitation.ReciverEmail == user.Email;
     }
