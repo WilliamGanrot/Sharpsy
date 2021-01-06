@@ -16,7 +16,18 @@ else if (!IsAuthorizedUser)
 }
 else
 {
-    <h3>Room @RoomModel.Title</h3>
+    
+    <div style="background-color:firebrick; width:100%; height:100vh;padding:1rem!important">
+        <h3 style="color:white">Room @RoomModel.Title</h3>
+
+        <div style="height:78vh;width:82%;margin:auto;background-color:#fff">
+            hej
+        </div>
+
+        <div style=" position: absolute; bottom: 30px; width: 80%;left: 50%; transform: translateX(-50%);">
+            <textarea rows="3" style="width:100%;resize: none;"></textarea>
+        </div>
+    </div>
 }
 @code {
 

@@ -5,6 +5,7 @@
 @using System.Security.Claims
 @using Sharpsy.DataAccess.Stores
 @using Sharpsy.App.Services 
+@using Sharpsy.App.Components
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity;
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -13,7 +14,7 @@
 @inject UserManager<ApplicationUser> UserManager;
 @inject State State   
 
-<h3>Rooms</h3>
+
 
 @if (rooms != null)
 {
@@ -42,8 +43,8 @@
             NavigationManager.NavigateTo("/notauthorized");
             return;
         }
-
         rooms = await RoomStore.GetRoomsByUserId(user.Id);
+        
     }
 
 
