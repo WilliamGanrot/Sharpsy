@@ -14,6 +14,6 @@ namespace Sharpsy.Library.Models
 
 
         public RoomModel Room { get; set; }
-        public ApplicationUser User { get; set; }
+        public ApplicationUser User { get; set; } = new ApplicationUser();
     }
 }

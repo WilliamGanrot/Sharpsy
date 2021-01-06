@@ -20,6 +20,9 @@
     <None Update="Queries\applicationuser_room_insert.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Queries\get_message_page_in_room.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Queries\get_rooms_by_userId.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

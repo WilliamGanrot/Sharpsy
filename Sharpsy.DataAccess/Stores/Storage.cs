@@ -213,9 +213,29 @@ namespace Sharpsy.DataAccess.Stores
         {
             using (var connection = new SqlConnection(_connectionString))
             {
+                var lookup = new Dictionary<int, Message>();
+                await connection.QueryAsync<Message, ApplicationUser, RoomModel, Message>(
+                    Queries.GetMessagePageInRoom,
+                    (m, u, r) =>
+                    {
+                        Message message;
+                        if (!lookup.TryGetValue(m.MessageId, out message))
+                            lookup.Add(m.MessageId, message = m);
 
+                        message.User = u;
+                        message.Room = r;
+
+                        return message;
+                    },
+                    new
+                    {
+                        RoomId = roomId,
+                        Offset = (page * 20) + 20
+                    },
+                    splitOn: "MessageId,Id,RoomId");
+
+                return lookup.Values.ToList();
             }
-            throw new NotImplementedException();
         }
     }
 }

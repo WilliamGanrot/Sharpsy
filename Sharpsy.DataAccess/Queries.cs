@@ -33,6 +33,7 @@ namespace Sharpsy.DataAccess
             LookForExpireringRoomInvitations = File.ReadAllText(Path.Combine(dir, "Queries/roomInvitation_update_expiering_status.sql"));
             IsUserInRoom = File.ReadAllText(Path.Combine(dir, "Queries/room_check_if_user_is_in_room.sql"));
             InsertMessage = File.ReadAllText(Path.Combine(dir, "Queries/message_insert.sql"));
+            GetMessagePageInRoom = File.ReadAllText(Path.Combine(dir, "Queries/get_message_page_in_room.sql"));
         }
 
         public static string GetRoomsByUserId { get; set; }

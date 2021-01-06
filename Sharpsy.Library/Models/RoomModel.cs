@@ -14,5 +14,6 @@ namespace Sharpsy.Library.Models
 
 
         public ApplicationUser Creator { get; set; }
+        public IEnumerable<Message> Messages { get; set; }
     }
 }
