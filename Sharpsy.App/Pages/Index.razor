@@ -106,7 +106,7 @@
 
     .msg-note {
         font-weight: 500;
-        font-size: .6rem;
+        font-size: .8rem;
     }
 
     .missed-notification{
@@ -119,6 +119,16 @@
         background-color: #397CE2;
         border-radius: 50%;
         display: inline-block;
+    }
+
+    .left-msg-container {
+        padding-left: 1.5rem;
+        padding-right: 15rem;
+    }
+
+    .right-msg-container {
+        padding-left: 15rem;
+        padding-right: 1.5rem
     }
 
 </style>
@@ -149,7 +159,7 @@
                                 <span style="font-weight:500;"> - </span>
                                 <span style="font-weight:500;">
                                     @room.NotificationMessage.Text.Substring(0, 150)
-                                    @if(room.NotificationMessage.Text.Length > 150)
+                                    @if (room.NotificationMessage.Text.Length > 150)
                                     {
                                         <span>...</span>
                                     }
@@ -160,6 +170,9 @@
                     <hr />
                 }
             }
+        <div class="roomlist-item">
+            <span><i class="fa fa-plus"></i></span>
+        </div>
         </div>
         @if (ActiveRoom != null)
         {
@@ -172,17 +185,17 @@
 
                         {
                             if (message.SenderEmail != User.Email)
-                            {
-                                <div style="padding-left:1.5rem; padding-right:3rem;">
-                                    <p class="align-right msg-paragraph">@message.Text</p>
-                                    <p class="align-right msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent.ToString("yyyy-MM-dd HH:mm")</span></p>
+                            { 
+                                <div class="left-msg-container">
+                                    <p class="msg-paragraph">@message.Text</p>
+                                    <p class="msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent.ToString("yyyy-MM-dd HH:mm")</span></p>
                                 </div>
                             }
                             else
-                            {
-                                <div style="padding-left:3rem; padding-right:1.5rem;">
-                                    <p class="msg-paragraph">@message.Text</p>
-                                    <p class="msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent.ToString("yyyy-MM-dd HH:mm")</span></p>
+                            { 
+                                <div class="right-msg-container">
+                                    <p class="align-right msg-paragraph">@message.Text</p>
+                                    <p class="align-right msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent.ToString("yyyy-MM-dd HH:mm")</span></p>
                                 </div>
                             }
                             <hr />
