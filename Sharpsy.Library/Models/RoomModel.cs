@@ -25,6 +25,9 @@ namespace Sharpsy.Library.Models
                     SenderEmail = m.User.Email,
                     Sent = m.Sent
                 }).ToList();
-        
+
+        public SimpleMessage NotificationMessage { get; set; }
+
     }
 }
+    

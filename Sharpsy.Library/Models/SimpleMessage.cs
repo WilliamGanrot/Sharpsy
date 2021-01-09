@@ -9,7 +9,8 @@ namespace Sharpsy.Library.Models
         public string SenderEmail { get; set; }
         public DateTime Sent { get; set; }
         public string Text { get; set; }
-    
+        public int RoomId { get; set; }
+
     }
 
 }

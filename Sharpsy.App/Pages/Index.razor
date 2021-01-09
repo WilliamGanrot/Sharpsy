@@ -33,6 +33,7 @@
     .container-shadow {
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     }
+
     ::-webkit-scrollbar-track {
         background-color: transparent;
     }
@@ -72,6 +73,7 @@
         width: 100%;
         float: right;
         resize: none;
+        border: none;
     }
 
     .align-right {
@@ -88,13 +90,13 @@
         float: right"
     }
 
-    #message-list-container{
-        height:82vh;
-        background-color:#fff;
+    #message-list-container {
+        height: 82vh;
+        background-color: #fff;
         padding-top: 1rem;
-        overflow-y:auto;
-        margin-bottom:2rem;
-        padding:1rem
+        overflow-y: auto;
+        margin-bottom: 2rem;
+        padding: 1rem
     }
 
     .msg-paragraph {
@@ -106,6 +108,10 @@
         font-weight: 500;
         font-size: .6rem;
     }
+
+    .missed-notification{
+        font-weight:600;
+    }
 </style>
 
 <div class="bacground">
@@ -116,8 +122,10 @@
                 foreach (var room in Rooms)
                 {
                     var isActiveRoom = room.RoomId == ActiveRoom?.RoomId;
+                    var hasMissedNotification = room.NotificationMessage != null;
 
-                    <div class='roomlist-item @(isActiveRoom ? "roomlist-item-active" : "")' @onclick="@(() => ChangeActiveRoom(room.RoomId))">
+
+                    <div class='roomlist-item @(isActiveRoom ? "roomlist-item-active" : "") @(hasMissedNotification ? "missed-notification" : "")' @onclick="@(() => ChangeActiveRoom(room.RoomId))">
                         @room.Title
                     </div>
                     <hr />
@@ -126,35 +134,35 @@
         </div>
         @if (ActiveRoom != null)
         {
-    <div class="right-col">
-        <div id="message-list-container" class="container-shadow">
-            @if (ActiveRoom.Messages != null)
-            {
-
-                foreach (var message in simpleMessages)
-
-                {
-                    if (message.SenderEmail != User.Email)
+            <div class="right-col">
+                <div id="message-list-container" class="container-shadow">
+                    @if (ActiveRoom.Messages != null)
                     {
-                        <div style="padding-left:1.5rem; padding-right:3rem;">
-                            <p class="align-right msg-paragraph">@message.Text</p>
-                            <p class="align-right msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent</span></p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div style="padding-left:3rem; padding-right:1.5rem;">
-                            <p class="msg-paragraph">@message.Text</p>
-                            <p class="msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent</span></p>
-                        </div>
-                    }
-                    <hr />
-                }
-            }
-        </div>
-        <textarea id="message-input" class="container-shadow" @bind="MessageText" @bind:event="oninput" rows="3" placeholder="Write a message" @onkeydown="@Enter"></textarea>
 
-    </div>
+                        foreach (var message in simpleMessages)
+
+                        {
+                            if (message.SenderEmail != User.Email)
+                            {
+                                <div style="padding-left:1.5rem; padding-right:3rem;">
+                                    <p class="align-right msg-paragraph">@message.Text</p>
+                                    <p class="align-right msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent.ToString("yyyy-MM-dd HH:mm")</span></p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div style="padding-left:3rem; padding-right:1.5rem;">
+                                    <p class="msg-paragraph">@message.Text</p>
+                                    <p class="msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent.ToString("yyyy-MM-dd HH:mm")</span></p>
+                                </div>
+                            }
+                            <hr />
+                        }
+                    }
+                </div>
+                <textarea id="message-input" class="container-shadow" @bind="MessageText" @bind:event="oninput" rows="3" placeholder="Write a message" @onkeydown="@Enter"></textarea>
+
+            </div>
         }
 
     </div>
@@ -167,7 +175,7 @@
     public IEnumerable<RoomModel> Rooms { get; set; }
 
     public RoomModel ActiveRoom { get; set; }
-    public List<SimpleMessage> simpleMessages  { get; set; }
+    public List<SimpleMessage> simpleMessages { get; set; }
 
 
     public string MessageText { get; set; }
@@ -196,15 +204,29 @@
         await _hubConnection.StartAsync();
 
         Rooms = await RoomStore.GetRoomsByUserId(User.Id);
-        ConnectToChatHub();
+        await ConnectToChatHub();
 
     }
 
     public Task ReceiveMessage(SimpleMessage message)
     {
+        var isMessageFromActiveRoom = ActiveRoom != null && ActiveRoom.RoomId == message.RoomId;
+        if (isMessageFromActiveRoom)
+        {
+            simpleMessages.Add(message);
+            StateHasChanged();
+        }
+        else
+        {
+            var roomToNotify = Rooms
+                .Where(room => room.RoomId == message.RoomId)
+                .FirstOrDefault();
 
-        simpleMessages.Add(message);
-        StateHasChanged();
+            roomToNotify.NotificationMessage = message;
+            StateHasChanged();
+
+        }
+
         return Task.CompletedTask;
     }
 
@@ -214,7 +236,8 @@
         {
             Sent = DateTime.Now,
             Text = text,
-            SenderEmail = User.Email
+            SenderEmail = User.Email,
+            RoomId = ActiveRoom.RoomId
         };
 
         await _hubConnection.SendAsync("SendMessageToGroup", ActiveRoom.RoomId.ToString(), message);
@@ -239,13 +262,18 @@
 
         if (!IsAuthorizedUser)
         {
-            return;
             NavigationManager.NavigateTo("/notauthorized");
+            return;
         }
 
         ActiveRoom = await RoomStore.FindRoomById(roomId);
+
+        var r = Rooms.Where(r => r.RoomId == roomId).FirstOrDefault();
+        r.NotificationMessage = null;
+
         ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(roomId, 0);
         simpleMessages = ActiveRoom.GetSimpleMessages();
+        StateHasChanged();
     }
 
     public async Task Enter(KeyboardEventArgs e)
@@ -277,8 +305,6 @@
                         ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(ActiveRoom.RoomId, Page);
                     }
                 }
-
-
             }
         }
     }
