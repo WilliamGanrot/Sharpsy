@@ -112,6 +112,15 @@
     .missed-notification{
         font-weight:600;
     }
+
+    .notification-circle {
+        height: .6rem;
+        width: .6rem;
+        background-color: #397CE2;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
 </style>
 
 <div class="bacground">
@@ -124,9 +133,29 @@
                     var isActiveRoom = room.RoomId == ActiveRoom?.RoomId;
                     var hasMissedNotification = room.NotificationMessage != null;
 
-
                     <div class='roomlist-item @(isActiveRoom ? "roomlist-item-active" : "") @(hasMissedNotification ? "missed-notification" : "")' @onclick="@(() => ChangeActiveRoom(room.RoomId))">
-                        @room.Title
+                        <span>
+                            @room.Title
+
+                            @if (hasMissedNotification)
+                            {
+                                <span style="margin-left:.5rem" class="notification-circle"></span>
+                            }
+                        </span>
+                        @if (hasMissedNotification)
+                        {
+                            <div style="font-size:.9rem;">
+                                <span style="font-weight:600;">@room.NotificationMessage.SenderEmail</span>
+                                <span style="font-weight:500;"> - </span>
+                                <span style="font-weight:500;">
+                                    @room.NotificationMessage.Text.Substring(0, 150)
+                                    @if(room.NotificationMessage.Text.Length > 150)
+                                    {
+                                        <span>...</span>
+                                    }
+                                </span>
+                            </div>
+                        }
                     </div>
                     <hr />
                 }
