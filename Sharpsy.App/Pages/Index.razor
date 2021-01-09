@@ -3,7 +3,6 @@
 @using Sharpsy.Library.Models
 @using System.Text.Json
 @using System.Security.Claims
-@using Blazor.Extensions
 @using Sharpsy.DataAccess.Stores
 @using Sharpsy.App.Services
 @using Sharpsy.App.Components
@@ -13,8 +12,7 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 @inject IStorage RoomStore
-@inject ChatHub ChatHub
-@inject UserManager<ApplicationUser> UserManager;
+@inject UserManager<ApplicationUser> UserManager
 @inject State State
 
 
@@ -39,12 +37,24 @@
                 <div style="height:82vh;background-color:#fff;padding-top: 1rem;overflow-y:auto;margin-bottom:2rem">
                     @if (ActiveRoom.Messages != null)
                     {
-                        foreach (var message in ActiveRoom.Messages)
+
+                        foreach (var message in simpleMessages)
+
                         {
-                            <div style="padding-left:1.5rem; padding-right:1.5rem">
-                                <p style="font-weight:600;margin-bottom:0;">@message.Text</p>
-                                <p style="font-weight:500;font-size:.6rem">@message.User.Email <span> | </span><span style="color:firebrick">@message.Sent</span></p>
-                            </div>
+                            if (message.SenderEmail != User.Email)
+                            {
+                                <div style="padding-left:1.5rem; padding-right:1.5rem">
+                                    <p style="font-weight:600;margin-bottom:0;">@message.Text</p>
+                                    <p style="font-weight:500;font-size:.6rem">@message.SenderEmail<span> | </span><span style="color:firebrick">@message.Sent</span></p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div style="padding-left:1.5rem; padding-right:1.5rem;background-color:lightblue">
+                                    <p style="font-weight:600;margin-bottom:0;">@message.Text</p>
+                                    <p style="font-weight:500;font-size:.6rem">@message.SenderEmail<span> | </span><span style="color:firebrick">@message.Sent</span></p>
+                                </div>
+                            }
                             <hr />
                         }
                     }
@@ -66,10 +76,14 @@
     public IEnumerable<RoomModel> Rooms { get; set; }
 
     public RoomModel ActiveRoom { get; set; }
+    public List<SimpleMessage> simpleMessages  { get; set; }
+
 
     public string MessageText { get; set; }
 
     public ApplicationUser User { get; set; }
+
+    public HubConnection _hubConnection;
 
     public bool IsAuthorizedUser { get; set; }
 
@@ -86,28 +100,44 @@
             return;
         }
 
+        _hubConnection = new HubConnectionBuilder().WithUrl($"{NavigationManager.BaseUri}ChatHub").Build();
+        _hubConnection.On<SimpleMessage>("ReceiveMessage", this.ReceiveMessage);
+        await _hubConnection.StartAsync();
+
         Rooms = await RoomStore.GetRoomsByUserId(User.Id);
+        ConnectToChatHub();
 
     }
+
+    public Task ReceiveMessage(SimpleMessage message)
+    {
+
+        simpleMessages.Add(message);
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    async Task SendMessage(string text)
+    {
+        var message = new SimpleMessage
+        {
+            Sent = DateTime.Now,
+            Text = text,
+            SenderEmail = User.Email
+        };
+
+        await _hubConnection.SendAsync("SendMessageToGroup", ActiveRoom.RoomId.ToString(), message);
+    }
+
 
     public async Task ConnectToChatHub()
     {
         if (Rooms != null)
         {
             foreach (var room in Rooms)
-                await ChatHub.JoinGroup(room.RoomId.ToString());
+                await _hubConnection.SendAsync("JoinGroup", room.RoomId.ToString());
         }
-    }
 
-    public Task OnBroadcastMessage(string name, string message)
-    {
-        return Task.CompletedTask;
-    }
-
-    public async Task SendToRoom(string message)
-    {
-        await ChatHub.SendMessageToGroup(ActiveRoom.RoomId.ToString(), message);
-        return;
     }
 
     public async Task ChangeActiveRoom(int roomId)
@@ -124,6 +154,7 @@
 
         ActiveRoom = await RoomStore.FindRoomById(roomId);
         ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(roomId, 0);
+        simpleMessages = ActiveRoom.GetSimpleMessages();
     }
 
     public async Task Enter(KeyboardEventArgs e)
@@ -149,7 +180,7 @@
                     var res = await RoomStore.InsertMessage(message);
                     if (res != 0)
                     {
-                        await SendToRoom(message.Text);
+                        await SendMessage(message.Text);
                         MessageText = "";
                         Page = 0;
                         ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(ActiveRoom.RoomId, Page);

@@ -230,7 +230,7 @@ namespace Sharpsy.DataAccess.Stores
                     new
                     {
                         RoomId = roomId,
-                        Offset = (page * 20) + 20
+                        Offset = (page * 100) + 100
                     },
                     splitOn: "MessageId,Id,RoomId");
 
