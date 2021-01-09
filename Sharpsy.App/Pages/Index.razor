@@ -15,16 +15,109 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject State State
 
+<style>
+    .bacground {
+        background-image: linear-gradient(to bottom right, #2d56bd, #429aff);
+        width: 100%;
+        height: 100vh;
+    }
 
-<div style="background-color:firebrick; width:100%; height:100vh;">
+    .custom-container {
+        width: 82%;
+        margin: auto;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        height: 100vh
+    }
 
-    <div style="width: 82%; margin: auto;padding-top:2rem;padding-bottom:2rem;height:100vh">
-        <div style="height:100%;width:32%;background-color:#fff;float:left;padding: .5em;">
+    .container-shadow {
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    }
+    ::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+
+    ::-webkit-scrollbar {
+        width: 5px;
+        background-color: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-image: linear-gradient(#3776DC, #3A7EE4);
+    }
+
+    .roomlist-item {
+        cursor: pointer;
+        font-size: larger;
+    }
+
+    .roomlist-item-active {
+        color: #2D56BD
+    }
+
+    #roomlist {
+        height: 100%;
+        width: 32.5%;
+        background-color: #fff;
+        float: left;
+        padding: 1rem;
+    }
+
+    #message-input:focus {
+        outline: none;
+    }
+
+    #message-input {
+        bottom: 30px;
+        width: 100%;
+        float: right;
+        resize: none;
+    }
+
+    .align-right {
+        text-align: right;
+    }
+
+    .align-left {
+        text-align: left;
+    }
+
+    .right-col {
+        float: right;
+        width: 65%;
+        float: right"
+    }
+
+    #message-list-container{
+        height:82vh;
+        background-color:#fff;
+        padding-top: 1rem;
+        overflow-y:auto;
+        margin-bottom:2rem;
+        padding:1rem
+    }
+
+    .msg-paragraph {
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+
+    .msg-note {
+        font-weight: 500;
+        font-size: .6rem;
+    }
+</style>
+
+<div class="bacground">
+    <div class="custom-container">
+        <div class="container-shadow" id="roomlist">
             @if (Rooms != null)
             {
                 foreach (var room in Rooms)
                 {
-                    <div style="cursor:pointer" @onclick="@(() => ChangeActiveRoom(room.RoomId))">
+                    var isActiveRoom = room.RoomId == ActiveRoom?.RoomId;
+
+                    <div class='roomlist-item @(isActiveRoom ? "roomlist-item-active" : "")' @onclick="@(() => ChangeActiveRoom(room.RoomId))">
                         @room.Title
                     </div>
                     <hr />
@@ -33,37 +126,35 @@
         </div>
         @if (ActiveRoom != null)
         {
-            <div style="float:right;width:65%;float:right">
-                <div style="height:82vh;background-color:#fff;padding-top: 1rem;overflow-y:auto;margin-bottom:2rem">
-                    @if (ActiveRoom.Messages != null)
+    <div class="right-col">
+        <div id="message-list-container" class="container-shadow">
+            @if (ActiveRoom.Messages != null)
+            {
+
+                foreach (var message in simpleMessages)
+
+                {
+                    if (message.SenderEmail != User.Email)
                     {
-
-                        foreach (var message in simpleMessages)
-
-                        {
-                            if (message.SenderEmail != User.Email)
-                            {
-                                <div style="padding-left:1.5rem; padding-right:1.5rem">
-                                    <p style="font-weight:600;margin-bottom:0;">@message.Text</p>
-                                    <p style="font-weight:500;font-size:.6rem">@message.SenderEmail<span> | </span><span style="color:firebrick">@message.Sent</span></p>
-                                </div>
-                            }
-                            else
-                            {
-                                <div style="padding-left:1.5rem; padding-right:1.5rem;background-color:lightblue">
-                                    <p style="font-weight:600;margin-bottom:0;">@message.Text</p>
-                                    <p style="font-weight:500;font-size:.6rem">@message.SenderEmail<span> | </span><span style="color:firebrick">@message.Sent</span></p>
-                                </div>
-                            }
-                            <hr />
-                        }
+                        <div style="padding-left:1.5rem; padding-right:3rem;">
+                            <p class="align-right msg-paragraph">@message.Text</p>
+                            <p class="align-right msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent</span></p>
+                        </div>
                     }
-                </div>
-                <div style="bottom:30px;width:100%;float:right">
-                    <textarea @bind="MessageText" @bind:event="oninput" rows="3" placeholder="Write a message" style="width:100%;resize: none;" @onkeydown="@Enter"></textarea>
-                </div>
+                    else
+                    {
+                        <div style="padding-left:3rem; padding-right:1.5rem;">
+                            <p class="msg-paragraph">@message.Text</p>
+                            <p class="msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent</span></p>
+                        </div>
+                    }
+                    <hr />
+                }
+            }
+        </div>
+        <textarea id="message-input" class="container-shadow" @bind="MessageText" @bind:event="oninput" rows="3" placeholder="Write a message" @onkeydown="@Enter"></textarea>
 
-            </div>
+    </div>
         }
 
     </div>
