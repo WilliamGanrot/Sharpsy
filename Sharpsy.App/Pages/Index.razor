@@ -14,6 +14,7 @@
 @inject IStorage RoomStore
 @inject UserManager<ApplicationUser> UserManager
 @inject State State
+@inject IJSRuntime JSRuntime
 
 <style>
     .bacground {
@@ -109,8 +110,8 @@
         font-size: .8rem;
     }
 
-    .missed-notification{
-        font-weight:600;
+    .missed-notification {
+        font-weight: 600;
     }
 
     .notification-circle {
@@ -130,7 +131,6 @@
         padding-left: 15rem;
         padding-right: 1.5rem
     }
-
 </style>
 
 <div class="bacground">
@@ -170,9 +170,9 @@
                     <hr />
                 }
             }
-        <div class="roomlist-item">
-            <span><i class="fa fa-plus"></i></span>
-        </div>
+            <div class="roomlist-item">
+                <span><i class="fa fa-plus"></i></span>
+            </div>
         </div>
         @if (ActiveRoom != null)
         {
@@ -185,14 +185,14 @@
 
                         {
                             if (message.SenderEmail != User.Email)
-                            { 
+                            {
                                 <div class="left-msg-container">
                                     <p class="msg-paragraph">@message.Text</p>
                                     <p class="msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent.ToString("yyyy-MM-dd HH:mm")</span></p>
                                 </div>
                             }
                             else
-                            { 
+                            {
                                 <div class="right-msg-container">
                                     <p class="align-right msg-paragraph">@message.Text</p>
                                     <p class="align-right msg-note">@message.SenderEmail<span> | </span><span style="color:#2d56bd">@message.Sent.ToString("yyyy-MM-dd HH:mm")</span></p>
@@ -316,6 +316,8 @@
         ActiveRoom.Messages = await RoomStore.GetMessagePageInRoom(roomId, 0);
         simpleMessages = ActiveRoom.GetSimpleMessages();
         StateHasChanged();
+
+        await JSRuntime.InvokeVoidAsync("scrollToBottom");
     }
 
     public async Task Enter(KeyboardEventArgs e)
