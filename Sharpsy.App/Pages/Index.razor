@@ -228,8 +228,8 @@
     public async Task TellClientTopUppdateActiveList(bool ph)
     {
 
-
-        StateHasChanged();
+        var x = Rooms.SelectMany(u => u.Members).Select(m => m.Id);
+        await _hubConnection.SendAsync("GetActiveUserList", x);
 
     }
     public async Task ReciveActiveList(List<int> l)
@@ -286,8 +286,8 @@
 
         await JSRuntime.InvokeVoidAsync("scrollToBottom");
 
-        var x = ActiveRoom.Messages.Select(m => m.UserId).Distinct().ToList();
-        await _hubConnection.SendAsync("UpdateActiveUserList", x);
+        var x = Rooms.SelectMany(u => u.Members).Select(m => m.Id);
+        await _hubConnection.SendAsync("GetActiveUserList", x);
     }
 
     public async Task Enter(KeyboardEventArgs e)

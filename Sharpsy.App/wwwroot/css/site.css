@@ -290,23 +290,25 @@ app {
 }
 
 .loggedout-circle {
-    height: .6rem;
-    width: .6rem;
+    height: .45rem;
+    width: .45rem;
     background-color: red;
     border-radius: 50%;
     display: inline-block;
     margin-right: .2rem;
     margin-left: .2rem;
+    vertical-align: middle;
 }
 
 .loggedin-circle {
-    height: .6rem;
-    width: .6rem;
-    background-color: #58d658;
+    height: .45rem;
+    width: .45rem;
+    background-color: #40d640;
     border-radius: 50%;
     display: inline-block;
     margin-right: .2rem;
     margin-left: .2rem;
+    vertical-align: middle;
 }
 
 .left-msg-container {

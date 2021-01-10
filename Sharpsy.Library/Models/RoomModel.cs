@@ -16,7 +16,7 @@ namespace Sharpsy.Library.Models
 
         public ApplicationUser Creator { get; set; }
         public IEnumerable<Message> Messages { get; set; }
-
+        public List<ApplicationUser> Members { get; set; } 
 
         public List<SimpleMessage> GetSimpleMessages() =>
             Messages.Select(m => new SimpleMessage

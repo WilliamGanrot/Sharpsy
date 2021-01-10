@@ -70,18 +70,22 @@ namespace Sharpsy.DataAccess.Stores
             {
                 var parameters = new { UserId = id };
 
-                await connection.QueryAsync<RoomModel, ApplicationUserRoom, RoomModel>(
+                await connection.QueryAsync<RoomModel, ApplicationUserRoom, ApplicationUser, RoomModel>(
                     Queries.GetRoomsByUserId,
-                    (r, ar) =>
+                    (r, ar, u) =>
                     {
                         RoomModel room;
                         if (!lookup.TryGetValue(r.RoomId, out room))
-                            lookup.Add(r.RoomId, r);
+                            lookup.Add(r.RoomId, room = r);
 
+                        if (room.Members == null)
+                            room.Members = new List<ApplicationUser>();
+
+                        room.Members.Add(u);
                         return room;
                     },
                     parameters,
-                    splitOn: "RoomId,ApplicationUserRoomId");
+                    splitOn: "RoomId,ApplicationUserRoomId,Id");
 
                 return lookup.Values.ToList();
             }

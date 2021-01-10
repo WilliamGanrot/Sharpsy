@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sharpsy.App
 {
+
     public class UserConnection
     {
         public string ConnectionId { get; set; }
@@ -19,6 +20,7 @@ namespace Sharpsy.App
         }
     }
 
+    //todo tell to update clients active user list on join/disconnect
     public class ChatHub : Hub
     {
         public const string HubUrl = "/ChatHub";
@@ -29,13 +31,14 @@ namespace Sharpsy.App
         {
             Groups.AddToGroupAsync(Context.ConnectionId, group);
             activeUsers.Add(new UserConnection(Context.ConnectionId, userId));
-
+            TellClientTopUppdateActiveList(group);
             return base.OnConnectedAsync();
         }
             
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             activeUsers.RemoveAll(p => p.ConnectionId == Context.ConnectionId);
+
 
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, "SignalR Users");
             await base.OnDisconnectedAsync(exception);
@@ -46,7 +49,12 @@ namespace Sharpsy.App
             return Clients.Group(group).SendAsync("ReceiveMessage", message);
         }
 
-        public Task UpdateActiveUserList(List<int> l)
+        public Task TellClientTopUppdateActiveList(string group)
+        {
+            return Clients.Group(group).SendAsync("TellClientTopUppdateActiveList", true);
+        }
+
+        public Task GetActiveUserList(List<int> l)
         {
             var x = activeUsers.Select(x => x.UserId).ToList().Intersect(l).ToList();
             return Clients.All.SendAsync("ReciveActiveList", x);
