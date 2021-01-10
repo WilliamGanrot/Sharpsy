@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -54,12 +55,7 @@ namespace Sharpsy.App
             services.AddScoped<IStorage>((s) => new Storage(Configuration.GetConnectionString("DefaultConnection")));
             
             services.AddControllers();
-            services.AddSignalR(hubOptions =>
-            {
-                hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(10);
-                hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(13);
-                hubOptions.EnableDetailedErrors = true;
-            });
+            services.AddSignalR();
 
         }
 
@@ -91,7 +87,10 @@ namespace Sharpsy.App
             {
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
-                endpoints.MapHub<ChatHub>("/ChatHub");
+                endpoints.MapHub<ChatHub>("/ChatHub", options =>
+                {
+                    options.Transports = HttpTransportType.LongPolling;
+                });
             });
         }
     }

@@ -11,33 +11,41 @@ namespace Sharpsy.App
     {
         public string ConnectionId { get; set; }
         public int UserId { get; set; }
+        public List<int> RoomIds { get; set; }
 
-        public UserConnection(string cId, int uId)
+        public UserConnection(string cId, int uId, List<int> rIds = null)
         {
             ConnectionId = cId;
             UserId = uId;
+            RoomIds = rIds;
         }
     }
 
-    //todo tell to update clients active user list on join/disconnect
+    //todo tell to update clients active user list on disconnect
     public class ChatHub : Hub
     {
         public const string HubUrl = "/ChatHub";
         private static List<UserConnection> activeUsers = new List<UserConnection>();
 
 
-        public Task JoinGroup(string group, int userId)
+        public Task JoinGroup(string group, int userId, List<int> allUserRooms)
         {
             Groups.AddToGroupAsync(Context.ConnectionId, group);
-            activeUsers.Add(new UserConnection(Context.ConnectionId, userId));
+            activeUsers.Add(new UserConnection(Context.ConnectionId, userId, allUserRooms));
             TellClientTopUppdateActiveList(group);
             return base.OnConnectedAsync();
         }
             
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            activeUsers.RemoveAll(p => p.ConnectionId == Context.ConnectionId);
 
+            var userConnection = activeUsers.FirstOrDefault(x => x.ConnectionId == Context.ConnectionId);
+            activeUsers.RemoveAll(p => p.ConnectionId == Context.ConnectionId);
+            
+            foreach(var r in userConnection.RoomIds)
+            {
+                TellClientTopUppdateActiveList(r.ToString());
+            }
 
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, "SignalR Users");
             await base.OnDisconnectedAsync(exception);
@@ -53,11 +61,12 @@ namespace Sharpsy.App
             return Clients.Group(group).SendAsync("TellClientTopUppdateActiveList");
         }
 
-        public Task GetActiveUserList(List<int> l)
+        public Task GetActiveUserList(List<int> allRoomUsers)
         {
-            var x = activeUsers.Select(x => x.UserId).ToList().Intersect(l).ToList();
-            return Clients.All.SendAsync("ReciveActiveList", x);
+            var activeUsersInRoom = activeUsers.Select(x => x.UserId).ToList().Intersect(allRoomUsers).ToList();
+            return Clients.All.SendAsync("ReciveActiveList", activeUsersInRoom);
         }
+
 
     }
 }
