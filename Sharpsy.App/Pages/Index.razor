@@ -182,7 +182,7 @@
 
         _hubConnection = new HubConnectionBuilder().WithUrl($"{NavigationManager.BaseUri}ChatHub").Build();
         _hubConnection.On<SimpleMessage>("ReceiveMessage", this.ReceiveMessage);
-        _hubConnection.On<bool>("TellClientTopUppdateActiveList", this.TellClientTopUppdateActiveList);
+        _hubConnection.On("TellClientTopUppdateActiveList", this.TellClientTopUppdateActiveList);
         _hubConnection.On<List<int>>("ReciveActiveList", this.ReciveActiveList);
         await _hubConnection.StartAsync();
 
@@ -225,7 +225,7 @@
     }
 
 
-    public async Task TellClientTopUppdateActiveList(bool ph)
+    public async Task TellClientTopUppdateActiveList()
     {
 
         var x = Rooms.SelectMany(u => u.Members).Select(m => m.Id);

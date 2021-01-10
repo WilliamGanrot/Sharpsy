@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Sharpsy.App
 {
-
     public class UserConnection
     {
         public string ConnectionId { get; set; }
@@ -51,7 +50,7 @@ namespace Sharpsy.App
 
         public Task TellClientTopUppdateActiveList(string group)
         {
-            return Clients.Group(group).SendAsync("TellClientTopUppdateActiveList", true);
+            return Clients.Group(group).SendAsync("TellClientTopUppdateActiveList");
         }
 
         public Task GetActiveUserList(List<int> l)
