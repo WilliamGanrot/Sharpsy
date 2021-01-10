@@ -54,7 +54,12 @@ namespace Sharpsy.App
             services.AddScoped<IStorage>((s) => new Storage(Configuration.GetConnectionString("DefaultConnection")));
             
             services.AddControllers();
-            services.AddSignalR();
+            services.AddSignalR(hubOptions =>
+            {
+                hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(10);
+                hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(13);
+                hubOptions.EnableDetailedErrors = true;
+            });
 
         }
 

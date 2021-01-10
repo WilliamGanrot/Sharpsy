@@ -2,6 +2,7 @@
 using Sharpsy.Library.Models;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Sharpsy.App.Services
 {
@@ -20,6 +21,11 @@ namespace Sharpsy.App.Services
         {
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
             return await _userManager.GetUserAsync(authState.User);
+        }
+
+        public async Task<ApplicationUser> GetUserByClaim(ClaimsPrincipal p)
+        {
+            return await _userManager.GetUserAsync(p);
         }
     }
 }

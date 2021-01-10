@@ -23,7 +23,8 @@ namespace Sharpsy.Library.Models
                 {
                     Text = m.Text,
                     SenderEmail = m.User.Email,
-                    Sent = m.Sent
+                    Sent = m.Sent,
+                    UserId = m.UserId
                 }).ToList();
 
         public SimpleMessage NotificationMessage { get; set; }

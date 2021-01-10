@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharpsy.Library", "Sharpsy.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharpsy.DataAccess", "Sharpsy.DataAccess\Sharpsy.DataAccess.csproj", "{F4924D62-421D-43E2-9410-CF7D8354E954}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharpsy.Procedures", "Sharpsy.Procedures\Sharpsy.Procedures.csproj", "{8C7245B5-9A02-4F42-8BF9-0DFA620F04D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharpsy.Procedures", "Sharpsy.Procedures\Sharpsy.Procedures.csproj", "{8C7245B5-9A02-4F42-8BF9-0DFA620F04D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

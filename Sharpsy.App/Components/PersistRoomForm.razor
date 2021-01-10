@@ -10,13 +10,16 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject State State
 
-<EditForm Model="@room" OnValidSubmit="@HandleValidSubmit">
+<span style="cursor:pointer" @onclick="CloseForm">
+    <i class="fa fa-times"></i>
+</span>
+<EditForm style=" display: flex;" Model="@room" OnValidSubmit="@HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <InputText id="title" @bind-Value="room.Title" />
+    <InputText style=" width: 100%; margin-right: 1rem; border: 2px #555555 solid;" id="title" @bind-Value="room.Title" />
 
-    <button type="submit">Submit</button>
+    <button style="font-size:large;background: transparent; box-shadow: none; border: 2px #555555 solid; padding-top: .2rem; padding-bottom: .2rem; padding-left: .7rem; padding-right: .7rem;" type="submit">Submit</button>
 </EditForm>
 
 @code {
@@ -34,12 +37,21 @@
         }
     }
 
+    public void CloseForm()
+    {
+        OnClosingForm.Invoke();
+    }
+
     private async Task HandleValidSubmit()
     {
         var user = await State.GetAuthenticatedUser();
         room.CreatorId = user.Id;
 
         await RoomStore.CreateRoom(room);
+        CloseForm();
+        room = new RoomModel();
     }
+
+    public static event Action OnClosingForm = () => { };
 
 }
