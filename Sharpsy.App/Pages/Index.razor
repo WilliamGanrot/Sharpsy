@@ -204,6 +204,7 @@
         PersistRoomForm.OnClosingForm += () =>
         {
             TogglePersistRoomForm();
+            StateHasChanged();
         };
 
     }
@@ -344,6 +345,16 @@
 
     public void Dispose()
     {
-        _hubConnection.DisposeAsync();
+        try
+        {
+            if (_hubConnection != null)
+                _hubConnection.DisposeAsync();
+        }
+        catch (Exception)
+        {
+
+        }
+
+
     }
 }
